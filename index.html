@@ -3,9 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Online Apply Form</title>
+<title>Apply Form</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<meta name="description" content="Online apply form.">
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -319,6 +320,43 @@
   @keyframes rot { to { transform: rotate(360deg); } }
   .fine { text-align: center; font-size: 13px; color: var(--muted); margin: 2px 0 0; }
 
+  /* ---------- Referral ---------- */
+  .refer-q { display: block; font-size: .95rem; font-weight: 600; margin-bottom: 8px; }
+  .refer-q small { font-weight: 400; color: var(--muted); font-size: .9rem; }
+  .choice { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .choice label { position: relative; cursor: pointer; }
+  .choice input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+  .choice span {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    padding: 14px 16px; border: 1.5px solid var(--line); border-radius: 14px;
+    background: var(--card); font-weight: 600;
+    transition: border-color .25s var(--ease), background-color .25s var(--ease), box-shadow .25s var(--ease), transform .2s var(--ease);
+  }
+  .choice span::before {
+    content: ""; width: 17px; height: 17px; border-radius: 50%;
+    border: 2px solid var(--line); background: transparent;
+    transition: border-color .25s var(--ease), background .25s var(--ease), transform .3s var(--ease);
+  }
+  .choice input:checked + span {
+    border-color: var(--accent); background: var(--accent-soft);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 16%, transparent);
+  }
+  .choice input:checked + span::before {
+    border-color: var(--accent);
+    background: radial-gradient(circle, var(--accent) 0 38%, transparent 42%);
+    transform: scale(1.1);
+  }
+  .choice input:active + span { transform: scale(.98); }
+  .choice input:focus-visible + span { outline: 3px solid color-mix(in srgb, var(--accent) 50%, transparent); outline-offset: 2px; }
+  @media (hover: hover) { .choice label:hover span { border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); } }
+  .field.invalid .choice span { border-color: var(--err); }
+  .field.shake > .choice { animation: shake .45s var(--ease); }
+  .reveal { display: grid; grid-template-rows: 0fr; opacity: 0; transition: grid-template-rows .45s var(--ease), opacity .3s var(--ease); }
+  .reveal.open { grid-template-rows: 1fr; opacity: 1; }
+  .reveal-clip { overflow: hidden; min-height: 0; margin: 0 -6px; padding: 0 6px; }
+  .reveal-pad { padding: 14px 0 6px; }
+  @media (max-width: 900px) { .choice span { background: var(--bg); } }
+
   /* ---------- Splash screen (about 2.3s, then slides away) ---------- */
   .splash {
     position: fixed; inset: 0; z-index: 9999;
@@ -403,7 +441,7 @@
       <input type="hidden" name="_template" value="table">
       <!-- After submitting, applicants land on your own thank-you page (replaces FormSubmit's default page).
            Replace the URL with the real address of thanks.html on your site. -->
-      <input type="hidden" name="_next" value="https://form-biswajit.vercel.app/thanks.html">
+      <input type="hidden" name="_next" value="https://share-your-details.vercel.app/">
       <input type="hidden" name="Full Phone Number" id="fullPhone">
 
       <div class="form-head">
@@ -415,6 +453,15 @@
         <div class="control">
           <input type="text" id="name" name="Full Name" placeholder=" " autocomplete="name">
           <label for="name">Full name *</label>
+        </div>
+        <div class="meta"><div class="msg" aria-live="polite"><div><p><svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M10 2a8 8 0 100 16 8 8 0 000-16zm-1 4h2v5H9V6zm0 6h2v2H9v-2z"/></svg><span></span></p></div></div></div>
+      </div>
+
+      <div class="field" id="genderField">
+        <span class="refer-q" id="genderLabel">Gender *</span>
+        <div class="choice" role="radiogroup" aria-labelledby="genderLabel">
+          <label><input type="radio" name="Gender" value="Male"><span>Male</span></label>
+          <label><input type="radio" name="Gender" value="Female"><span>Female</span></label>
         </div>
         <div class="meta"><div class="msg" aria-live="polite"><div><p><svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M10 2a8 8 0 100 16 8 8 0 000-16zm-1 4h2v5H9V6zm0 6h2v2H9v-2z"/></svg><span></span></p></div></div></div>
       </div>
@@ -455,6 +502,25 @@
         <div class="control">
           <input type="text" id="skill" name="Extra Skill" placeholder=" ">
           <label for="skill">Extra skill (optional)</label>
+        </div>
+      </div>
+
+      <div class="refer">
+        <span class="refer-q" id="refLabel">Were you referred by someone? <small>Optional</small></span>
+        <div class="choice" role="radiogroup" aria-labelledby="refLabel">
+          <label><input type="radio" name="Referred" value="Yes" id="refYes"><span>Yes</span></label>
+          <label><input type="radio" name="Referred" value="No" id="refNo"><span>No</span></label>
+        </div>
+        <div class="reveal" id="refReveal">
+          <div class="reveal-clip"><div class="reveal-pad">
+            <div class="field" id="refNameField">
+              <div class="control">
+                <input type="text" id="refName" name="Referred By" placeholder=" " disabled>
+                <label for="refName">Referrer’s full name *</label>
+              </div>
+              <div class="meta"><div class="msg" aria-live="polite"><div><p><svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M10 2a8 8 0 100 16 8 8 0 000-16zm-1 4h2v5H9V6zm0 6h2v2H9v-2z"/></svg><span></span></p></div></div></div>
+            </div>
+          </div></div>
         </div>
       </div>
 
@@ -539,6 +605,32 @@ setTimeout(function () { var el = document.getElementById('splash'); if (el) el.
     });
   });
 
+  /* ---------- Gender (required, warning only on submit) ---------- */
+  const genderField = document.getElementById('genderField');
+  const genderRadios = genderField.querySelectorAll('input[name="Gender"]');
+  genderRadios.forEach(r => r.addEventListener('change', () => setMsg(genderField, '')));
+  const earlier = (a, b) => !a ? b : (a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_PRECEDING ? b : a);
+
+  /* ---------- Referral (optional; name needed only if Yes) ---------- */
+  const refYes = document.getElementById('refYes');
+  const refNo = document.getElementById('refNo');
+  const refReveal = document.getElementById('refReveal');
+  const refNameField = document.getElementById('refNameField');
+  const refName = document.getElementById('refName');
+  const REF_MSG = 'Enter the name of the person who referred you.';
+  function syncReferral(focus) {
+    const yes = refYes.checked;
+    refReveal.classList.toggle('open', yes);
+    refName.disabled = !yes; // a disabled field is not sent with the form
+    if (!yes) { refName.value = ''; setMsg(refNameField, ''); }
+    else if (focus) setTimeout(() => refName.focus({ preventScroll: true }), 380);
+  }
+  refYes.addEventListener('change', () => syncReferral(true));
+  refNo.addEventListener('change', () => syncReferral(false));
+  refName.addEventListener('input', () => {
+    if (submitted) setMsg(refNameField, refName.value.trim() ? '' : REF_MSG);
+  });
+
   /* ---------- Files (optional) ---------- */
   const docs = document.getElementById('docs');
   const drop = document.getElementById('drop');
@@ -606,6 +698,13 @@ setTimeout(function () { var el = document.getElementById('splash'); if (el) el.
     });
     submitted = true;
     if (!updatePhone(true)) { shake(phoneField); first = first && first.compareDocumentPosition(phoneField) & Node.DOCUMENT_POSITION_PRECEDING ? phoneField : (first || phoneField); }
+
+    if (![...genderRadios].some(r => r.checked)) {
+      setMsg(genderField, 'Please choose Male or Female.'); shake(genderField); first = earlier(first, genderField);
+    }
+    if (refYes.checked && !refName.value.trim()) {
+      setMsg(refNameField, REF_MSG); shake(refNameField); first = first || refNameField;
+    }
 
     if (first) {
       e.preventDefault();
