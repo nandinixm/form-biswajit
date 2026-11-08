@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Application received</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700&family=DM+Sans:opsz,wght@9..40,400;9..40,600&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#f3f4fb; --card:#fff; --ink:#121a36; --muted:#5a6385; --line:#dadef0; --accent:#3a4de0; --ok:#12a37f; --ease:cubic-bezier(.22,.8,.24,1); }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0b1020; --card:#131a33; --ink:#eef0fb; --muted:#98a2c8; --line:#28325a; --accent:#7f8dff; --ok:#3ddcb4; } }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100dvh; display: grid; place-items: center; padding: 24px 16px;
+    background: var(--bg);
+    color: var(--ink); font-family: "DM Sans", system-ui, sans-serif; line-height: 1.55; -webkit-font-smoothing: antialiased;
+    overflow-x: hidden; position: relative;
+  }
+
+  /* Drifting background glows */
+  .glow { position: fixed; z-index: 0; border-radius: 50%; filter: blur(60px); opacity: .5; pointer-events: none; }
+  .glow.a { width: 50vmax; height: 50vmax; top: -22vmax; right: -14vmax; background: color-mix(in srgb, var(--accent) 45%, transparent); animation: drift 16s ease-in-out infinite alternate; }
+  .glow.b { width: 42vmax; height: 42vmax; bottom: -20vmax; left: -14vmax; background: color-mix(in srgb, var(--ok) 35%, transparent); animation: drift 20s ease-in-out infinite alternate-reverse; }
+  @keyframes drift { from { transform: translate(0,0) scale(1); } to { transform: translate(-5vmax, 4vmax) scale(1.15); } }
+
+  /* Confetti */
+  .confetti { position: fixed; inset: 0; z-index: 2; pointer-events: none; overflow: hidden; }
+  .confetti i {
+    position: absolute; top: -5vh; width: 9px; height: 14px; border-radius: 2px; opacity: 0;
+    animation: fall var(--d) cubic-bezier(.3,.6,.4,1) var(--delay) forwards;
+  }
+  @keyframes fall {
+    0%   { opacity: 1; transform: translate3d(0,0,0) rotate(0); }
+    100% { opacity: 0; transform: translate3d(var(--x), 105vh, 0) rotate(var(--r)); }
+  }
+
+  .card {
+    position: relative; z-index: 1;
+    width: 100%; max-width: 520px; text-align: center;
+    background: var(--card); border: 1px solid var(--line); border-radius: 26px;
+    padding: clamp(40px, 8vw, 64px) clamp(28px, 6vw, 52px);
+    box-shadow: 0 24px 48px -28px rgba(18,26,54,.35);
+    animation: rise .8s var(--ease) both, float 6s ease-in-out 1s infinite;
+  }
+  @keyframes rise { from { opacity: 0; transform: translateY(24px) scale(.97); } to { opacity: 1; transform: none; } }
+  @keyframes float { 50% { transform: translateY(-6px); } }
+
+  /* Tick with pulsing rings */
+  .tick-wrap { position: relative; width: 76px; height: 76px; margin: 0 auto 24px; }
+  .tick-wrap::before, .tick-wrap::after {
+    content: ""; position: absolute; inset: 0; border-radius: 50%;
+    border: 2px solid var(--ok); opacity: 0;
+    animation: ring 2.6s ease-out 1s infinite;
+  }
+  .tick-wrap::after { animation-delay: 1.9s; }
+  @keyframes ring { 0% { transform: scale(1); opacity: .5; } 100% { transform: scale(1.9); opacity: 0; } }
+  .tick { position: relative; width: 100%; height: 100%; }
+  .tick circle { fill: color-mix(in srgb, var(--ok) 16%, transparent); transform-origin: center; animation: pop .6s cubic-bezier(.34,1.56,.64,1) .2s both; }
+  .tick path { fill: none; stroke: var(--ok); stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 40; stroke-dashoffset: 40; animation: draw .5s var(--ease) .7s forwards; }
+  @keyframes pop { from { transform: scale(.4); opacity: 0; } to { transform: none; opacity: 1; } }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+
+  /* Staggered text */
+  .up { opacity: 0; animation: up .7s var(--ease) both; }
+  .up.d1 { animation-delay: .9s; } .up.d2 { animation-delay: 1.05s; } .up.d3 { animation-delay: 1.2s; }
+  @keyframes up { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+
+  h1 { margin: 0 0 10px; font-family: "Bricolage Grotesque", system-ui, sans-serif; font-size: clamp(1.8rem, 6vw, 2.3rem); line-height: 1.08; letter-spacing: -.025em; text-wrap: balance; }
+  p { margin: 0 auto 26px; max-width: 36ch; color: var(--muted); }
+
+  a {
+    position: relative; overflow: hidden; display: inline-block; padding: 14px 26px; border-radius: 14px;
+    background: var(--accent); color: #fff; font-weight: 600; text-decoration: none;
+    transition: transform .25s var(--ease), box-shadow .25s var(--ease);
+    box-shadow: 0 14px 28px -14px var(--accent);
+  }
+  a::after {
+    content: ""; position: absolute; top: 0; bottom: 0; left: -60%; width: 40%;
+    background: linear-gradient(100deg, transparent, rgba(255,255,255,.4), transparent);
+    transform: skewX(-20deg); transition: left .7s var(--ease);
+  }
+  @media (prefers-color-scheme: dark) { a { color: #0b1020; } }
+  @media (hover: hover) { a:hover { transform: translateY(-2px); } a:hover::after { left: 130%; } }
+  a:active { transform: scale(.98); }
+  a:focus-visible { outline: 3px solid color-mix(in srgb, var(--accent) 50%, transparent); outline-offset: 3px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    .up { opacity: 1; } .tick path { stroke-dashoffset: 0; } .confetti { display: none; }
+  }
+</style>
+</head>
+<body>
+  <div class="glow a" aria-hidden="true"></div>
+  <div class="glow b" aria-hidden="true"></div>
+  <div class="confetti" id="confetti" aria-hidden="true"></div>
+
+  <main class="card">
+    <div class="tick-wrap">
+      <svg class="tick" viewBox="0 0 76 76" aria-hidden="true"><circle cx="38" cy="38" r="36"/><path d="M24 39l10 10 18-20"/></svg>
+    </div>
+    <h1 class="up d1">Application received</h1>
+    <p class="up d2">Thank you for applying. We’ll look through your details and get back to you soon.</p>
+    <!-- Replace # with the link to your home page -->
+    <a class="up d3" href="#">Back to home</a>
+  </main>
+
+<script>
+  // One-time confetti burst when the page opens
+  (function () {
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const box = document.getElementById('confetti');
+    const colors = ['#3a4de0', '#7f8dff', '#12a37f', '#ffc247', '#ff6b8b'];
+    for (let i = 0; i < 44; i++) {
+      const el = document.createElement('i');
+      el.style.left = Math.random() * 100 + 'vw';
+      el.style.background = colors[i % colors.length];
+      el.style.setProperty('--x', (Math.random() * 200 - 100) + 'px');
+      el.style.setProperty('--r', (Math.random() * 720 - 360) + 'deg');
+      el.style.setProperty('--d', (2.4 + Math.random() * 2) + 's');
+      el.style.setProperty('--delay', (0.5 + Math.random() * 0.9) + 's');
+      box.appendChild(el);
+    }
+    setTimeout(() => box.remove(), 6000);
+  })();
+</script>
+</body>
+</html>
